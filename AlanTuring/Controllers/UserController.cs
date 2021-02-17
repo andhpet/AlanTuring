@@ -1,100 +1,99 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlanTuring.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-#region UserController
 
 namespace AlanTuring.Controllers
 {
-    //[Route("api/[controller]")]
-    //[ApiController]
-    [Route("[controller]")]
+    [Route("User")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly Alan_TuringContext _baza;
-        #endregion
-
-        public UserController(Alan_TuringContext baza)
+        private readonly Alan_TuringContext _DB;
+        public UserController(Alan_TuringContext DB)
         {
-            _baza = baza;
-            if (_baza.Users.Count() == 0)
+            _DB = DB;
+
+            if (_DB.Users.Count() == 0)
             {
-                // Create a new TodoItem if collection is empty,
-                // which means you can't delete all TodoItems.
-                _baza.Users.Add(new User { FirstName = "Item1" });
-                _baza.SaveChanges();
+                // Create a new User if collection is empty,
+                _DB.Users.Add(new User { Mail = "john.smith@email.com", Password = "0000" });
+                _DB.SaveChanges();
             }
-
         }
 
-        #region snippet_GetAll
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUserItems()
-        {
-            return await _baza.Users.ToListAsync();
-        }
-        #region snippet_GetByID
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUserItem(long id)
-        {
-
-            var todoItem = await _baza.Users.FindAsync(id);
-            if (todoItem == null)
-            {
-                return NotFound();
-            }
-            return todoItem;
-        }
-        #endregion
-        #endregion
-
-        #region snippet_Create
+        #region Create
         [HttpPost]
         public async Task<ActionResult<User>> PostUserItem(User item)
         {
-            //item.Id = 7;
-            _baza.Users.Add(item);
-            await _baza.SaveChangesAsync();
-            // return Ok(item);
-            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+            var check = (from elm in _DB.Users
+                        where elm.Mail == item.Mail
+                        select elm).Count();
+            if (check > 0)
+            {
+                return Conflict();
+            }
+            else
+            {
+                _DB.Users.Add(item);
+                await _DB.SaveChangesAsync();
+                return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+            }
         }
         #endregion
-        #region snippet_Update
+
+        #region Read
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<User>>> GetUserItems()
+        {
+            return await _DB.Users.ToListAsync();
+        }
+        #endregion
+
+        #region ReadById
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetUserItem(int id)
+        {
+            var user = await _DB.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return user;
+        }
+        #endregion
+
+        #region Update
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserItem(long id, User item)
+        public async Task<IActionResult> PutUserItem(int id, User item)
         {
             if (id != item.Id)
             {
                 return BadRequest();
             }
 
-            _baza.Entry(item).State = EntityState.Modified;
-            await _baza.SaveChangesAsync();
+            _DB.Entry(item).State = EntityState.Modified;
+            await _DB.SaveChangesAsync();
 
             return NoContent();
         }
         #endregion
-        #region snippet_Delete
 
-        //snippet_Delete
-        // DELETE: api/Todo/5
+        #region Delete
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserItem(long id)
+        public async Task<IActionResult> DisableUserItem(int id)
         {
-            var todoItem = await _baza.Users.FindAsync(id);
+            var user = await _DB.Users.FindAsync(id);
 
-            if (todoItem == null)
+            if (id != user.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            _baza.Users.Remove(todoItem);
-            await _baza.SaveChangesAsync();
+            user.Status = false;
+            await _DB.SaveChangesAsync();
 
             return NoContent();
         }
