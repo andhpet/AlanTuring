@@ -39,6 +39,9 @@ namespace AlanTuring.Controllers
             {
                 _DB.Users.Add(item);
                 await _DB.SaveChangesAsync();
+
+                SendEmail.SendRegistrationEmail(item.Mail);
+
                 return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
             }
         }

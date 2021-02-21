@@ -5,9 +5,11 @@ namespace AlanTuring
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
+
+            return 0;
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -16,5 +18,6 @@ namespace AlanTuring
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
     }
 }
