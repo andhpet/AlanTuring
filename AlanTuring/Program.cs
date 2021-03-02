@@ -18,6 +18,5 @@ namespace AlanTuring
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
     }
 }

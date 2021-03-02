@@ -1,4 +1,6 @@
+using AlanTuring.Entities;
 using AlanTuring.Models;
+using AlanTuring.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +24,10 @@ namespace AlanTuring
         {
             services.AddDbContext<Alan_TuringContext>(opt =>
             opt.UseSqlServer(Configuration.GetConnectionString("Alan_Turing")));
-     
+
+            services.Configure<SmtpSettings>(Configuration.GetSection("SmtpSettings"));
+            services.AddSingleton<IMailer, Mailer>();
+
             services.AddControllers();
         }
 

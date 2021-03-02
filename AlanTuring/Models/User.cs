@@ -11,7 +11,7 @@ namespace AlanTuring.Models
         {
             ChatUserReceivers = new HashSet<Chat>();
             ChatUserSenders = new HashSet<Chat>();
-            CommentsNavigation = new HashSet<Comment>();
+            Comments = new HashSet<Comment>();
             FinanceReceivers = new HashSet<Finance>();
             FinanceSenders = new HashSet<Finance>();
         }
@@ -19,7 +19,7 @@ namespace AlanTuring.Models
         public int Id { get; set; }
         public string Gender { get; set; }
         public DateTime? Dob { get; set; }
-        public string Comments { get; set; }
+        public string AdditionalInfo { get; set; }
         public bool? Status { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -34,7 +34,7 @@ namespace AlanTuring.Models
         public virtual Student Student { get; set; }
         public virtual ICollection<Chat> ChatUserReceivers { get; set; }
         public virtual ICollection<Chat> ChatUserSenders { get; set; }
-        public virtual ICollection<Comment> CommentsNavigation { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Finance> FinanceReceivers { get; set; }
         public virtual ICollection<Finance> FinanceSenders { get; set; }
     }

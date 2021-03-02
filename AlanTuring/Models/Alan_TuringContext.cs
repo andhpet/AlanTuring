@@ -31,6 +31,7 @@ namespace AlanTuring.Models
         public virtual DbSet<Folder> Folders { get; set; }
         public virtual DbSet<Graduation> Graduations { get; set; }
         public virtual DbSet<Group> Groups { get; set; }
+        public virtual DbSet<GroupConsistsOfStudent> GroupConsistsOfStudents { get; set; }
         public virtual DbSet<LearningMaterial> LearningMaterials { get; set; }
         public virtual DbSet<Lecturer> Lecturers { get; set; }
         public virtual DbSet<Lesson> Lessons { get; set; }
@@ -48,21 +49,20 @@ namespace AlanTuring.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-MIT0EGO\\SQLEXPRESS;Database=Alan_Turing;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=LAPTOP-PBSQPR1I\\SQLEXPRESS;Database=Alan_Turing;Trusted_Connection=True;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+            modelBuilder.HasAnnotation("Relational:Collation", "Cyrillic_General_CI_AS");
 
             modelBuilder.Entity<Assignment>(entity =>
             {
                 entity.HasKey(e => new { e.Id, e.PathsId, e.CoursesId, e.DeclarativeLessonsId, e.LessonsId })
                     .HasName("Assignments_pk");
 
-                entity.HasIndex(e => e.Id, "UQ__Assignme__3214EC26F35D2E64")
+                entity.HasIndex(e => e.Id, "UQ__Assignme__3214EC2672E9EF64")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -109,7 +109,7 @@ namespace AlanTuring.Models
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.DeclarativeLessonsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Assignmen__decla__01142BA1");
+                    .HasConstraintName("FK__Assignmen__decla__5AEE82B9");
 
                 entity.HasOne(d => d.Lessons)
                     .WithMany(p => p.Assignments)
@@ -122,13 +122,13 @@ namespace AlanTuring.Models
                     .WithMany(p => p.Assignments)
                     .HasForeignKey(d => d.PathsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Assignmen__paths__03F0984C");
+                    .HasConstraintName("FK__Assignmen__paths__5CD6CB2B");
             });
 
             modelBuilder.Entity<Chat>(entity =>
             {
                 entity.HasKey(e => e.MessageId)
-                    .HasName("PK__Chats__0BBF6EE6E2412DB4");
+                    .HasName("PK__Chats__0BBF6EE6DEFE4AFE");
 
                 entity.Property(e => e.MessageId)
                     .ValueGeneratedNever()
@@ -146,13 +146,13 @@ namespace AlanTuring.Models
                     .IsUnicode(false)
                     .HasColumnName("message_content");
 
-                entity.Property(e => e.Status).HasColumnName("status");
-
-                entity.Property(e => e.Type)
+                entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(7)
                     .IsUnicode(false)
-                    .HasColumnName("type");
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.UserReceiverId).HasColumnName("user_receiver_id");
 
@@ -161,7 +161,7 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.GroupReceiver)
                     .WithMany(p => p.Chats)
                     .HasForeignKey(d => d.GroupReceiverId)
-                    .HasConstraintName("FK__Chats__group_rec__05D8E0BE");
+                    .HasConstraintName("FK__Chats__group_rec__5DCAEF64");
 
                 entity.HasOne(d => d.UserReceiver)
                     .WithMany(p => p.ChatUserReceivers)
@@ -207,7 +207,7 @@ namespace AlanTuring.Models
                     .WithMany(p => p.Comments)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.AssignmentsId)
-                    .HasConstraintName("FK__Comments__assign__09A971A2");
+                    .HasConstraintName("FK__Comments__assign__60A75C0F");
 
                 entity.HasOne(d => d.Courses)
                     .WithMany(p => p.Comments)
@@ -219,7 +219,7 @@ namespace AlanTuring.Models
                     .WithMany(p => p.Comments)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.DeclarativeLessonsId)
-                    .HasConstraintName("FK__Comments__declar__0B91BA14");
+                    .HasConstraintName("FK__Comments__declar__628FA481");
 
                 entity.HasOne(d => d.Lessons)
                     .WithMany(p => p.Comments)
@@ -230,16 +230,16 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.Paths)
                     .WithMany(p => p.Comments)
                     .HasForeignKey(d => d.PathsId)
-                    .HasConstraintName("FK__Comments__paths___0F624AF8");
+                    .HasConstraintName("FK__Comments__paths___6477ECF3");
 
                 entity.HasOne(d => d.Submissions)
                     .WithMany(p => p.Comments)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.SubmissionsId)
-                    .HasConstraintName("FK__Comments__submis__114A936A");
+                    .HasConstraintName("FK__Comments__submis__656C112C");
 
                 entity.HasOne(d => d.Users)
-                    .WithMany(p => p.CommentsNavigation)
+                    .WithMany(p => p.Comments)
                     .HasForeignKey(d => d.UsersId)
                     .HasConstraintName("FK__Comments__users___0C85DE4D");
             });
@@ -287,7 +287,7 @@ namespace AlanTuring.Models
 
                 entity.ToTable("Declarative_Lessons");
 
-                entity.HasIndex(e => e.Id, "UQ__Declarat__3214EC26BD28A234")
+                entity.HasIndex(e => e.Id, "UQ__Declarat__3214EC2646CDBBEA")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -322,7 +322,7 @@ namespace AlanTuring.Models
                     .WithMany(p => p.DeclarativeLessons)
                     .HasForeignKey(d => d.PathsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Declarati__paths__160F4887");
+                    .HasConstraintName("FK__Declarati__paths__693CA210");
             });
 
             modelBuilder.Entity<Employee>(entity =>
@@ -430,7 +430,7 @@ namespace AlanTuring.Models
                     .WithMany()
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.AssignmentsId)
-                    .HasConstraintName("FK__files_ass__assig__19DFD96B");
+                    .HasConstraintName("FK__files_ass__assig__6C190EBB");
 
                 entity.HasOne(d => d.Files)
                     .WithMany()
@@ -456,7 +456,7 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.LearningMaterials)
                     .WithMany()
                     .HasForeignKey(d => d.LearningMaterialsId)
-                    .HasConstraintName("FK__files_lea__learn__1DB06A4F");
+                    .HasConstraintName("FK__files_lea__learn__6EF57B66");
             });
 
             modelBuilder.Entity<Finance>(entity =>
@@ -499,7 +499,7 @@ namespace AlanTuring.Models
             modelBuilder.Entity<Folder>(entity =>
             {
                 entity.HasKey(e => e.ParentId)
-                    .HasName("PK__Folders__90658CB8050E78F4");
+                    .HasName("PK__Folders__90658CB819BFF475");
 
                 entity.Property(e => e.ParentId)
                     .ValueGeneratedNever()
@@ -578,18 +578,29 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.Lecturers)
                     .WithMany(p => p.Groups)
                     .HasForeignKey(d => d.LecturersId)
-                    .HasConstraintName("FK__Groups__Lecturer__236943A5");
+                    .HasConstraintName("FK__Groups__Lecturer__73BA3083");
 
                 entity.HasOne(d => d.Paths)
                     .WithMany(p => p.Groups)
                     .HasForeignKey(d => d.PathsId)
-                    .HasConstraintName("FK__Groups__Paths_ID__25518C17");
+                    .HasConstraintName("FK__Groups__Paths_ID__74AE54BC");
 
                 entity.HasOne(d => d.Stream)
                     .WithMany(p => p.Groups)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.StreamId)
                     .HasConstraintName("FK__Groups__stream_I__656C112C");
+            });
+
+            modelBuilder.Entity<GroupConsistsOfStudent>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("Group_ConsistsOf_Students");
+
+                entity.Property(e => e.GroupsId).HasColumnName("Groups_ID");
+
+                entity.Property(e => e.StudentsId).HasColumnName("students_ID");
             });
 
             modelBuilder.Entity<LearningMaterial>(entity =>
@@ -632,7 +643,7 @@ namespace AlanTuring.Models
                     .WithMany(p => p.LearningMaterials)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.DeclarativeLessonsId)
-                    .HasConstraintName("FK__LearningM__decla__29221CFB");
+                    .HasConstraintName("FK__LearningM__decla__778AC167");
 
                 entity.HasOne(d => d.Lessons)
                     .WithMany(p => p.LearningMaterials)
@@ -643,7 +654,7 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.Paths)
                     .WithMany(p => p.LearningMaterials)
                     .HasForeignKey(d => d.PathsId)
-                    .HasConstraintName("FK__LearningM__paths__2BFE89A6");
+                    .HasConstraintName("FK__LearningM__paths__797309D9");
             });
 
             modelBuilder.Entity<Lecturer>(entity =>
@@ -784,7 +795,7 @@ namespace AlanTuring.Models
                     .WithMany(p => p.Notifications)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.AssignmentsId)
-                    .HasConstraintName("FK__Notificat__assig__3A4CA8FD");
+                    .HasConstraintName("FK__Notificat__assig__04E4BC85");
 
                 entity.HasOne(d => d.Events)
                     .WithMany(p => p.Notifications)
@@ -795,7 +806,7 @@ namespace AlanTuring.Models
                     .WithMany(p => p.Notifications)
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.SubmissionsId)
-                    .HasConstraintName("FK__Notificat__submi__3E1D39E1");
+                    .HasConstraintName("FK__Notificat__submi__06CD04F7");
             });
 
             modelBuilder.Entity<NotificationGroup>(entity =>
@@ -811,12 +822,12 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.Groups)
                     .WithMany()
                     .HasForeignKey(d => d.GroupsId)
-                    .HasConstraintName("FK__notificat__group__3493CFA7");
+                    .HasConstraintName("FK__notificat__group__01142BA1");
 
                 entity.HasOne(d => d.Notifications)
                     .WithMany()
                     .HasForeignKey(d => d.NotificationsId)
-                    .HasConstraintName("FK__notificat__notif__367C1819");
+                    .HasConstraintName("FK__notificat__notif__02084FDA");
             });
 
             modelBuilder.Entity<NotificationUser>(entity =>
@@ -832,7 +843,7 @@ namespace AlanTuring.Models
                 entity.HasOne(d => d.Notifications)
                     .WithMany()
                     .HasForeignKey(d => d.NotificationsId)
-                    .HasConstraintName("FK__notificat__notif__3864608B");
+                    .HasConstraintName("FK__notificat__notif__02FC7413");
 
                 entity.HasOne(d => d.Users)
                     .WithMany()
@@ -842,7 +853,7 @@ namespace AlanTuring.Models
 
             modelBuilder.Entity<Path>(entity =>
             {
-                entity.HasIndex(e => e.Name, "UQ__Paths__72E12F1B062055C8")
+                entity.HasIndex(e => e.Name, "UQ__Paths__72E12F1BB1F7F5E8")
                     .IsUnique();
 
                 entity.Property(e => e.Id)
@@ -951,7 +962,7 @@ namespace AlanTuring.Models
                 entity.HasKey(e => new { e.Id, e.PathsId, e.CoursesId, e.DeclarativeLessonsId, e.LessonsId, e.AssignmentsId })
                     .HasName("Submissions_pk");
 
-                entity.HasIndex(e => e.Id, "UQ__Submissi__3214EC263D9D3125")
+                entity.HasIndex(e => e.Id, "UQ__Submissi__3214EC26FC7F699B")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -987,7 +998,7 @@ namespace AlanTuring.Models
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.AssignmentsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Submissio__assig__42E1EEFE");
+                    .HasConstraintName("FK__Submissio__assig__0A9D95DB");
 
                 entity.HasOne(d => d.Courses)
                     .WithMany(p => p.Submissions)
@@ -1001,7 +1012,7 @@ namespace AlanTuring.Models
                     .HasPrincipalKey(p => p.Id)
                     .HasForeignKey(d => d.DeclarativeLessonsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Submissio__decla__45BE5BA9");
+                    .HasConstraintName("FK__Submissio__decla__0C85DE4D");
 
                 entity.HasOne(d => d.Lessons)
                     .WithMany(p => p.Submissions)
@@ -1014,12 +1025,12 @@ namespace AlanTuring.Models
                     .WithMany(p => p.Submissions)
                     .HasForeignKey(d => d.PathsId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Submissio__paths__47A6A41B");
+                    .HasConstraintName("FK__Submissio__paths__0E6E26BF");
 
                 entity.HasOne(d => d.Students)
                     .WithMany(p => p.Submissions)
                     .HasForeignKey(d => d.StudentsId)
-                    .HasConstraintName("FK__Submissio__stude__4A8310C6");
+                    .HasConstraintName("FK__Submissio__stude__0F624AF8");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -1027,15 +1038,12 @@ namespace AlanTuring.Models
                 entity.HasIndex(e => e.Mail, "UQ__Users__7A2129048A1A65BF")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Phone, "UQ__Users__B43B145FB1AFAE40")
-                    .IsUnique();
-
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Comments)
+                entity.Property(e => e.AdditionalInfo)
                     .HasMaxLength(200)
                     .IsUnicode(false)
-                    .HasColumnName("comments");
+                    .HasColumnName("additional_info");
 
                 entity.Property(e => e.Cv).HasColumnName("cv");
 
@@ -1066,7 +1074,7 @@ namespace AlanTuring.Models
 
                 entity.Property(e => e.Password)
                     .IsRequired()
-                    .HasMaxLength(20)
+                    .HasMaxLength(70)
                     .IsUnicode(false)
                     .HasColumnName("password");
 

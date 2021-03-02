@@ -10,7 +10,7 @@ namespace AlanTuring.Models
         public int MessageId { get; set; }
         public bool Status { get; set; }
         public string MessageContent { get; set; }
-        public string Type { get; set; }
+        public string Name { get; set; }
         public DateTime Date { get; set; }
         public int? UserReceiverId { get; set; }
         public int? UserSenderId { get; set; }

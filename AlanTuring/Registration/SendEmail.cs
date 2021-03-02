@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 
-namespace AlanTuring
+namespace AlanTuring.Registration
 {
     public class SendEmail
     {
