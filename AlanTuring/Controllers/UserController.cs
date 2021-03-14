@@ -31,7 +31,7 @@ namespace AlanTuring.Controllers
         }
         [Route("LogIn")]
         [HttpPost]
-         public async  Task<ActionResult<IEnumerable<User>>> LogIn([Bind] User users)
+        public async Task<ActionResult<IEnumerable<User>>> LogIn([Bind] User users)
         {
 
             //var allusers = dataContext.Users.FirstOrDefaultAsync();
@@ -45,18 +45,18 @@ namespace AlanTuring.Controllers
 
                };
                 var grandmaIntentity = new ClaimsIdentity(usersClaims, "users Identity");
-                var userPrincipal = new ClaimsPrincipal(new[] { grandmaIntentity});
+                var userPrincipal = new ClaimsPrincipal(new[] { grandmaIntentity });
                 //HttpContext.SignInAsync(userPrincipal);
                 return Ok(users.Mail);
             }
             return Unauthorized();
 
-         }
+        }
 
         [Authorize]
         public async Task<ActionResult<IEnumerable<User>>> Users()
         {
-            
+
             return Ok(GetUserItems());
         }
 
@@ -67,39 +67,39 @@ namespace AlanTuring.Controllers
         /// </summary>
         /// <param name="item"></param>
         /// <returns>User object</returns>
-        //[HttpPost]
-        //public async Task<ActionResult<User>> PostUserItem(User item)
-        //{
-        //    var userExists = (from elm in dataContext.Users
-        //                      where elm.Mail == item.Mail
-        //                      select elm).Any();
-        //    if (userExists)
-        //    {
-        //        return Conflict();
-        //    }
-        //    else
-        //    {
-        //        dataContext.Users.Add(item);
-        //        await dataContext.SaveChangesAsync();
+        [HttpPost]
+        public async Task<ActionResult<User>> PostUserItem(User item)
+        {
+            var userExists = (from elm in dataContext.Users
+                              where elm.Mail == item.Mail
+                              select elm).Any();
+            if (userExists)
+            {
+                return Conflict();
+            }
+            else
+            {
+                dataContext.Users.Add(item);
+                await dataContext.SaveChangesAsync();
 
-        //        ///After saving Item object in data context Send email to user 
-        //        bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "Weather Report", "Detailed Weather Report");
+                ///After saving Item object in data context Send email to user 
+                bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "School SignUp Report", "Detailed SignUp Report");
 
-        //        if (isMailSent)
-        //        {
-        //            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
-        //        }
-        //        else
-        //        {
-        //            dataContext.Users.Remove(item);
-        //            await dataContext.SaveChangesAsync();
-        //            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+                if (isMailSent)
+                {
+                    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+                }
+                else
+                {
+                    dataContext.Users.Remove(item);
+                    await dataContext.SaveChangesAsync();
+                    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
 
-        //           // return BadRequest();
-        //        }
+                    // return BadRequest();
+                }
 
-        //    }
-        //}
+            }
+        }
         #endregion
 
         #region Read
