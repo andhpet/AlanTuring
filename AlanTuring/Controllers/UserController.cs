@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AlanTuring.Models;
 using AlanTuring.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Crypto.Tls;
 
 namespace AlanTuring.Controllers
 {
@@ -15,11 +23,43 @@ namespace AlanTuring.Controllers
     {
         private readonly Alan_TuringContext dataContext;
         private readonly IMailer _mailer;
+
         public UserController(Alan_TuringContext DataContext, IMailer mailer)
         {
             dataContext = DataContext;
             _mailer = mailer;
         }
+        [Route("LogIn")]
+        [HttpPost]
+         public async  Task<ActionResult<IEnumerable<User>>> LogIn([Bind] User users)
+        {
+
+            //var allusers = dataContext.Users.FirstOrDefaultAsync();
+            if (dataContext.Users.Any(u => u.Mail == users.Mail))
+            {
+                var usersClaims = new List<Claim>()
+               {
+
+                   new Claim (ClaimTypes.Name, users.Mail ),
+                 // new Claim(ClaimTypes.Email, "anet@test.com"),
+
+               };
+                var grandmaIntentity = new ClaimsIdentity(usersClaims, "users Identity");
+                var userPrincipal = new ClaimsPrincipal(new[] { grandmaIntentity});
+                //HttpContext.SignInAsync(userPrincipal);
+                return Ok(users.Mail);
+            }
+            return Unauthorized();
+
+         }
+
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<User>>> Users()
+        {
+            
+            return Ok(GetUserItems());
+        }
+
 
         #region Create
         /// <summary>
@@ -27,37 +67,39 @@ namespace AlanTuring.Controllers
         /// </summary>
         /// <param name="item"></param>
         /// <returns>User object</returns>
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUserItem(User item)
-        {
-            var userExists = (from elm in dataContext.Users
-                              where elm.Mail == item.Mail
-                              select elm).Any();
-            if (userExists)
-            {
-                return Conflict();
-            }
-            else
-            {
-                dataContext.Users.Add(item);
-                await dataContext.SaveChangesAsync();
+        //[HttpPost]
+        //public async Task<ActionResult<User>> PostUserItem(User item)
+        //{
+        //    var userExists = (from elm in dataContext.Users
+        //                      where elm.Mail == item.Mail
+        //                      select elm).Any();
+        //    if (userExists)
+        //    {
+        //        return Conflict();
+        //    }
+        //    else
+        //    {
+        //        dataContext.Users.Add(item);
+        //        await dataContext.SaveChangesAsync();
 
-                ///After saving Item object in data context Send email to user 
-                bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "Weather Report", "Detailed Weather Report");
+        //        ///After saving Item object in data context Send email to user 
+        //        bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "Weather Report", "Detailed Weather Report");
 
-                if (isMailSent)
-                {
-                    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
-                }
-                else
-                {
-                    dataContext.Users.Remove(item);
-                    await dataContext.SaveChangesAsync();
+        //        if (isMailSent)
+        //        {
+        //            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+        //        }
+        //        else
+        //        {
+        //            dataContext.Users.Remove(item);
+        //            await dataContext.SaveChangesAsync();
+        //            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
 
-                    return BadRequest();
-                }
-            }
-        }
+        //           // return BadRequest();
+        //        }
+
+        //    }
+        //}
         #endregion
 
         #region Read

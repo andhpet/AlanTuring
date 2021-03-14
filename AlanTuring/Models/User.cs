@@ -19,7 +19,7 @@ namespace AlanTuring.Models
         public int Id { get; set; }
         public string Gender { get; set; }
         public DateTime? Dob { get; set; }
-        public string AdditionalInfo { get; set; }
+        //public string AdditionalInfo { get; set; }
         public bool? Status { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

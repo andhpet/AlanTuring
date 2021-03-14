@@ -1040,10 +1040,10 @@ namespace AlanTuring.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.AdditionalInfo)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasColumnName("additional_info");
+                //entity.Property(e => e.AdditionalInfo)
+                //    .HasMaxLength(200)
+                //    .IsUnicode(false)
+                //    .HasColumnName("additional_info");
 
                 entity.Property(e => e.Cv).HasColumnName("cv");
 
