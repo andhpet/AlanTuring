@@ -35,7 +35,8 @@ namespace AlanTuring.Controllers
         {
 
             //var allusers = dataContext.Users.FirstOrDefaultAsync();
-            if (dataContext.Users.Any(u => u.Mail == users.Mail))
+            if (dataContext.Users.Any(u => u.Mail == users.Mail 
+            && u.Password==users.Password))
             {
                 var usersClaims = new List<Claim>()
                {
@@ -49,7 +50,11 @@ namespace AlanTuring.Controllers
                 //HttpContext.SignInAsync(userPrincipal);
                 return Ok(users.Mail);
             }
-            return Unauthorized();
+            else
+            {
+                return Unauthorized();
+            }
+            
 
          }
 
@@ -67,39 +72,40 @@ namespace AlanTuring.Controllers
         /// </summary>
         /// <param name="item"></param>
         /// <returns>User object</returns>
-        //[HttpPost]
-        //public async Task<ActionResult<User>> PostUserItem(User item)
-        //{
-        //    var userExists = (from elm in dataContext.Users
-        //                      where elm.Mail == item.Mail
-        //                      select elm).Any();
-        //    if (userExists)
-        //    {
-        //        return Conflict();
-        //    }
-        //    else
-        //    {
-        //        dataContext.Users.Add(item);
-        //        await dataContext.SaveChangesAsync();
+        [HttpPost]
+        public async Task<ActionResult<User>> PostUserItem(User item)
+        {
+            var userExists = (from elm in dataContext.Users
+                              where elm.Mail == item.Mail
+                              select elm).Any();
+            if (userExists)
+            {
+                return Conflict();
+            }
+            else
+            {
+                dataContext.Users.Add(item);
+                await dataContext.SaveChangesAsync();
 
-        //        ///After saving Item object in data context Send email to user 
-        //        bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "Weather Report", "Detailed Weather Report");
+                ///After saving Item object in data context Send email to user 
+                //bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "Weather Report", "Detailed Weather Report");
 
-        //        if (isMailSent)
-        //        {
-        //            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
-        //        }
-        //        else
-        //        {
-        //            dataContext.Users.Remove(item);
-        //            await dataContext.SaveChangesAsync();
-        //            return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+                //if (isMailSent)
+                //{
+                //    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+                //}
+                //else
+                //{
+                //    dataContext.Users.Remove(item);
+                //    await dataContext.SaveChangesAsync();
+                //    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
 
-        //           // return BadRequest();
-        //        }
+                //    // return BadRequest();
+                //}
+                return Ok();
 
-        //    }
-        //}
+            }
+        }
         #endregion
 
         #region Read
