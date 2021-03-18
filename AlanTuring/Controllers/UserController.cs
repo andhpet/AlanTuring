@@ -31,7 +31,7 @@ namespace AlanTuring.Controllers
         }
         [Route("LogIn")]
         [HttpPost]
-         public async  Task<ActionResult<IEnumerable<User>>> LogIn([Bind] User users)
+        public async Task<ActionResult<IEnumerable<User>>> LogIn([Bind] User users)
         {
 
             //var allusers = dataContext.Users.FirstOrDefaultAsync();
@@ -46,7 +46,7 @@ namespace AlanTuring.Controllers
 
                };
                 var grandmaIntentity = new ClaimsIdentity(usersClaims, "users Identity");
-                var userPrincipal = new ClaimsPrincipal(new[] { grandmaIntentity});
+                var userPrincipal = new ClaimsPrincipal(new[] { grandmaIntentity });
                 //HttpContext.SignInAsync(userPrincipal);
                 return Ok(users.Mail);
             }
@@ -61,7 +61,7 @@ namespace AlanTuring.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<User>>> Users()
         {
-            
+
             return Ok(GetUserItems());
         }
 
