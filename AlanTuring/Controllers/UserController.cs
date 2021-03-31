@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AlanTuring.Models;
 using AlanTuring.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace AlanTuring.Controllers
 {
@@ -29,42 +21,6 @@ namespace AlanTuring.Controllers
             dataContext = DataContext;
             _mailer = mailer;
         }
-        [Route("LogIn")]
-        [HttpPost]
-        public async Task<ActionResult<IEnumerable<User>>> LogIn([Bind] User users)
-        {
-
-            //var allusers = dataContext.Users.FirstOrDefaultAsync();
-            if (dataContext.Users.Any(u => u.Mail == users.Mail 
-            && u.Password==users.Password))
-            {
-                var usersClaims = new List<Claim>()
-               {
-
-                   new Claim (ClaimTypes.Name, users.Mail ),
-                 // new Claim(ClaimTypes.Email, "anet@test.com"),
-
-               };
-                var grandmaIntentity = new ClaimsIdentity(usersClaims, "users Identity");
-                var userPrincipal = new ClaimsPrincipal(new[] { grandmaIntentity });
-                //HttpContext.SignInAsync(userPrincipal);
-                return Ok(users.Mail);
-            }
-            else
-            {
-                return Unauthorized();
-            }
-            
-
-         }
-
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<User>>> Users()
-        {
-
-            return Ok(GetUserItems());
-        }
-
 
         #region Create
         /// <summary>
@@ -128,6 +84,7 @@ namespace AlanTuring.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns>Returns user object with given id</returns>
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUserItem(int id)
         {
