@@ -1,11 +1,11 @@
-﻿using MailKit.Net.Smtp;
+﻿using System;
+using System.Threading.Tasks;
+using MimeKit;
+using MailKit.Net.Smtp;
+using AlanTuring.Settings;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using MimeKit;
-using System;
-using System.Threading.Tasks;
-using AlanTuring.Entities;
 
 namespace AlanTuring.Services
 {

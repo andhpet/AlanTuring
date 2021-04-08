@@ -1,38 +1,38 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using AlanTuring.Models;
-using AlanTuring.Services;
-using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AlanTuring.Models;
+using AlanTuring.Services;
 
 namespace AlanTuring.Controllers
 {
-    [Route("User")]
+    [Route("/api")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly Alan_TuringContext dataContext;
-        private readonly IMailer _mailer;
+        private readonly IMailer mailer;
 
-        public UserController(Alan_TuringContext DataContext, IMailer mailer)
+        public UsersController(Alan_TuringContext dataContext, IMailer mailer)
         {
-            dataContext = DataContext;
-            _mailer = mailer;
+            this.dataContext = dataContext;
+            this.mailer = mailer;
         }
 
-        #region Create
+        #region RegisterUser
         /// <summary>
         /// Adds new user
         /// </summary>
-        /// <param name="item"></param>
+        /// <param name="applicant"></param>
         /// <returns>User object</returns>
+        [Route("RegisterUser")]
         [HttpPost]
-        public async Task<ActionResult<User>> PostUserItem(User item)
+        public async Task<ActionResult<User>> RegisterUser(User applicant)
         {
             var userExists = (from elm in dataContext.Users
-                              where elm.Mail == item.Mail
+                              where elm.Mail == applicant.Mail
                               select elm).Any();
             if (userExists)
             {
@@ -40,64 +40,64 @@ namespace AlanTuring.Controllers
             }
             else
             {
-                dataContext.Users.Add(item);
+                dataContext.Users.Add(applicant);
                 await dataContext.SaveChangesAsync();
 
                 ///After saving Item object in data context Send email to user 
-                //bool isMailSent = await _mailer.SendEmailAsync(item.Mail, "Weather Report", "Detailed Weather Report");
+                //bool isMailSent = await mailer.SendEmailAsync(applicant.Mail, "Weather Report", "Detailed Weather Report");
 
                 //if (isMailSent)
                 //{
-                //    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+                //    return CreatedAtAction(nameof(GetUser), new { id = applicant.Id }, applicant);
                 //}
                 //else
                 //{
-                //    dataContext.Users.Remove(item);
+                //    dataContext.Users.Remove(applicant);
                 //    await dataContext.SaveChangesAsync();
-                //    return CreatedAtAction(nameof(GetUserItem), new { id = item.Id }, item);
+                //    return CreatedAtAction(nameof(GetUser), new { id = applicant.Id }, applicant);
 
                 //    // return BadRequest();
                 //}
-                return Ok();
 
+                return Ok();
             }
         }
         #endregion
 
-        #region Read
+        #region GetAllUsers
         /// <summary>
         /// Get all users
-        /// https://localhost:44321/User
         /// </summary>
         /// <returns>Returns all users available</returns>
+        [Route("GetAllUsers")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUserItems()
+        public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
         {
             return await dataContext.Users.ToListAsync();
         }
         #endregion
 
-        #region ReadById
+        #region GetUser
         /// <summary>
         /// Get user by id
-        /// https://localhost:44321/User/{id}/
         /// </summary>
         /// <param name="id"></param>
         /// <returns>Returns user object with given id</returns>
-        [Authorize]
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUserItem(int id)
+        [Route("GetUser")]
+        [HttpGet]
+        public async Task<ActionResult<User>> GetUser(User user)
         {
-            var user = await dataContext.Users.FindAsync(id);
-            if (user == null)
+            var person = await dataContext.Users.FindAsync(user.Id);
+            if (person == null)
             {
                 return NotFound();
             }
-            return user;
+            return person;
         }
+        ///delete this method after adding filter functionality for get all users method
         #endregion
 
-        #region Update
+        #region UpdateUser
         /// <summary>
         /// Change user proparties based on user id
         /// </summary>
@@ -105,7 +105,7 @@ namespace AlanTuring.Controllers
         /// <param name="item"></param>
         /// <returns>Status code: 204 - No Content</returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserItem(int id, User item)
+        public async Task<IActionResult> UpdateUser(int id, User item)
         {
             if (id != item.Id)
             {
@@ -119,7 +119,7 @@ namespace AlanTuring.Controllers
         }
         #endregion
 
-        #region Delete
+        #region DisableUser
         /// <summary>
         /// Changes the user status to 'false', which means that the user cannot log in until the status changes back to 'true'.
         /// </summary>
@@ -129,7 +129,7 @@ namespace AlanTuring.Controllers
         /// Status code: 404 - Not Found
         /// </returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DisableUserItem(int id)
+        public async Task<IActionResult> DisableUser(int id)
         {
             var user = await dataContext.Users.FindAsync(id);
 

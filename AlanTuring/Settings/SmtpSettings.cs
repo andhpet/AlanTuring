@@ -1,4 +1,4 @@
-﻿namespace AlanTuring.Entities
+﻿namespace AlanTuring.Settings
 {
     public class SmtpSettings
     {
